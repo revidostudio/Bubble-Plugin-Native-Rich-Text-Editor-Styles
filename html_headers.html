@@ -1,0 +1,147 @@
+<style>
+  /* ——— FROALA‑based "Rich Text Input" ——— */
+  
+  /* Placeholder text customization */
+  .bubble-element .fr-placeholder {
+    color: _*_Placeholder text color (HEX)_*_ !important;
+    opacity: 1 !important;
+    font-style: normal !important; /* turn off italics */
+  }
+  
+  /* Main editor content customization */
+  .bubble-element .fr-element {
+    color: _*_Font color (HEX)_*_ !important;
+    font-size: _*_Font size (number)_*_px !important;
+    font-family: _*_Body font type_*_, sans-serif !important;
+    font-weight: _*_Body font weight (number)_*_ !important;
+    line-height: _*_Line height (number)_*_ !important;
+  }
+  
+  /* Headers customization */
+  .bubble-element .fr-element h1,
+  .bubble-element .fr-element h2,
+  .bubble-element .fr-element h3,
+  .bubble-element .fr-element h4,
+  .bubble-element .fr-element h5,
+  .bubble-element .fr-element h6 {
+    font-family: _*_Headers font type_*_, sans-serif !important;
+    font-weight: _*_Headings font weight (number)_*_ !important;
+  }
+  
+  /* Link customization */
+  .bubble-element .fr-element a {
+    color: _*_Link color (HEX)_*_ !important;
+  }
+  
+  /* Font size options customization */
+  /* Small size */
+  .bubble-element .fr-element .fr-small,
+  .bubble-element .fr-view .fr-small {
+    font-size: _*_Small text size (number)_*_px !important;
+  }
+  
+  /* Normal size is already defined by the main font size above */
+  
+  /* Large size */
+  .bubble-element .fr-element .fr-large,
+  .bubble-element .fr-view .fr-large {
+    font-size: _*_Large text size (number)_*_px !important;
+  }
+  
+  /* Huge size */
+  .bubble-element .fr-element .fr-huge,
+  .bubble-element .fr-view .fr-huge {
+    font-size: _*_Huge text size (number)_*_px !important;
+  }
+  
+  /* Support for specific ID targeting if needed */
+  #blogBodyRTE .fr-placeholder {
+    color: _*_Placeholder text color (HEX)_*_ !important;
+    opacity: 1 !important;
+    font-style: normal !important;
+  }
+  
+  #blogBodyRTE .fr-element {
+    color: _*_Font color (HEX)_*_ !important;
+    font-size: _*_Font size (number)_*_px !important;
+    font-family: _*_Body font type_*_, sans-serif !important;
+    font-weight: _*_Body font weight (number)_*_ !important;
+    line-height: _*_Line height (number)_*_ !important;
+  }
+  
+  #blogBodyRTE .fr-element h1,
+  #blogBodyRTE .fr-element h2,
+  #blogBodyRTE .fr-element h3,
+  #blogBodyRTE .fr-element h4,
+  #blogBodyRTE .fr-element h5,
+  #blogBodyRTE .fr-element h6 {
+    font-family: _*_Headers font type_*_, sans-serif !important;
+    font-weight: _*_Headings font weight (number)_*_ !important;
+  }
+  
+  #blogBodyRTE .fr-element a {
+    color: _*_Link color (HEX)_*_ !important;
+  }
+  
+  /* Font size options for specific ID */
+  #blogBodyRTE .fr-element .fr-small,
+  #blogBodyRTE .fr-view .fr-small {
+    font-size: _*_Small text size (number)_*_px !important;
+  }
+  
+  #blogBodyRTE .fr-element .fr-large,
+  #blogBodyRTE .fr-view .fr-large {
+    font-size: _*_Large text size (number)_*_px !important;
+  }
+  
+  #blogBodyRTE .fr-element .fr-huge,
+  #blogBodyRTE .fr-view .fr-huge {
+    font-size: _*_Huge text size (number)_*_px !important;
+  }
+</style>
+
+<!-- Add JavaScript to set default font in the dropdown -->
+<script>
+  // This script handles setting the selected font in the dropdown
+  document.addEventListener('DOMContentLoaded', function() {
+    // Function to set the default font in the dropdown
+    function setDefaultFont() {
+      // For Froala Editor
+      const froalaFontSelectors = document.querySelectorAll('.fr-toolbar .fr-dropdown-list[data-name="fontFamily"] .fr-command');
+      if (froalaFontSelectors.length > 0) {
+        // Find the one matching our body font and click it
+        const bodyFont = '_*_Body font type_*_'.replace(/"/g, ''); // Remove quotes if present
+        for (let i = 0; i < froalaFontSelectors.length; i++) {
+          if (froalaFontSelectors[i].textContent.trim() === bodyFont) {
+            froalaFontSelectors[i].click();
+            break;
+          }
+        }
+      }
+    }
+    
+    // Run initially
+    setTimeout(setDefaultFont, 1000); // Give the editor time to initialize
+    
+    // Also run when new editors might be loaded
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.addedNodes.length) {
+          // Check if any of the added nodes are rich text editors
+          for (let i = 0; i < mutation.addedNodes.length; i++) {
+            const node = mutation.addedNodes[i];
+            if (node.nodeType === 1 && 
+                (node.classList.contains('fr-element') || 
+                 node.querySelector('.fr-element'))) {
+              setTimeout(setDefaultFont, 500); // Give the editor time to initialize
+              break;
+            }
+          }
+        }
+      });
+    });
+    
+    // Start observing the document for added nodes
+    observer.observe(document.body, { childList: true, subtree: true });
+  });
+</script>

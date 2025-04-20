@@ -1,0 +1,13 @@
+{
+    "categories": {
+        "0": "technical",
+        "1": "productivity"
+    },
+    "data_tracked": false,
+    "description": "Use this plugin to edit the style of the Bubble-native Rich Text Editor. Edit all styles within the plugin settings.",
+    "image": "//meta-q.cdn.bubble.io/f1745156512374x377734769345297000/Rich%20text%20editor%20plugin%20icon.png",
+    "license": "open_source",
+    "link": "https://revido.co/contact",
+    "name": "Native Rich Text Editor Styles",
+    "plugin_instructions": " Edit all styles within the plugin settings."
+}
