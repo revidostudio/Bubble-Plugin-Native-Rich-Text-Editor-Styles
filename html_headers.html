@@ -66,152 +66,182 @@
     font-size: _*_Huge text size (number)_*_px !important;
   }
   
-  /* Support for specific ID targeting if needed */
-  #blogBodyRTE .fr-toolbar,
-  #blogBodyRTE .fr-toolbar.fr-top,
-  #blogBodyRTE .fr-box.fr-basic .fr-toolbar {
-    background-color: _*_Toolbar background color (HEX)_*_ !important;
-    border-top-color: _*_Toolbar background color (HEX)_*_ !important;
-  }
-  
-  #blogBodyRTE .fr-placeholder {
-    color: _*_Placeholder text color (HEX)_*_ !important;
-    opacity: 1 !important;
-    font-style: normal !important;
-  }
-  
-  #blogBodyRTE .fr-element {
-    color: _*_Font color (HEX)_*_ !important;
-    font-size: _*_Font size (number)_*_px !important;
+  /* Override for dropdown displayed font */
+  .fr-toolbar .fr-command.fr-btn.fr-dropdown[data-cmd="fontFamily"] span:not(.fr-sr-only)::before {
+    content: "_*_Body font type_*_" !important;
     font-family: _*_Body font type_*_, sans-serif !important;
-    font-weight: _*_Body font weight (number)_*_ !important;
-    line-height: _*_Line height (number)_*_ !important;
-    padding-left: _*_Horizontal padding (number)_*_px !important;
-    padding-right: _*_Horizontal padding (number)_*_px !important;
-    padding-top: _*_Vertical padding (number)_*_px !important;
-    padding-bottom: _*_Vertical padding (number)_*_px !important;
   }
   
-  #blogBodyRTE .fr-element h1,
-  #blogBodyRTE .fr-element h2,
-  #blogBodyRTE .fr-element h3,
-  #blogBodyRTE .fr-element h4,
-  #blogBodyRTE .fr-element h5,
-  #blogBodyRTE .fr-element h6 {
+  /* Force selected font to be highlighted in dropdown */
+  .fr-dropdown-list .fr-dropdown-content .fr-button.fr-active {
+    background: #ebebeb !important;
+  }
+  
+  /* Add new fonts to dropdown menu */
+  .fr-dropdown-list .fr-dropdown-content .fr-element[style*="_*_Body font type_*_"] {
+    font-family: _*_Body font type_*_, sans-serif !important;
+  }
+  
+  .fr-dropdown-list .fr-dropdown-content .fr-element[style*="_*_Headers font type_*_"] {
     font-family: _*_Headers font type_*_, serif !important;
-    font-weight: _*_Headings font weight (number)_*_ !important;
-  }
-  
-  #blogBodyRTE .fr-element a {
-    color: _*_Link color (HEX)_*_ !important;
-  }
-  
-  /* Font size options for specific ID */
-  #blogBodyRTE .fr-element .fr-small,
-  #blogBodyRTE .fr-view .fr-small {
-    font-size: _*_Small text size (number)_*_px !important;
-  }
-  
-  #blogBodyRTE .fr-element .fr-large,
-  #blogBodyRTE .fr-view .fr-large {
-    font-size: _*_Large text size (number)_*_px !important;
-  }
-  
-  #blogBodyRTE .fr-element .fr-huge,
-  #blogBodyRTE .fr-view .fr-huge {
-    font-size: _*_Huge text size (number)_*_px !important;
   }
 </style>
 
-<!-- Add JavaScript to register and set default fonts -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Register custom fonts for Froala
-    function registerFonts() {
-      // Wait for Froala to be initialized
-      if (typeof FroalaEditor !== 'undefined') {
-        // Define default font families
-        const bodyFont = '_*_Body font type_*_';
-        const headersFont = '_*_Headers font type_*_';
+    // More aggressive approach to set fonts
+    function initFroalaFonts() {
+      // Target both newly created editors and existing ones
+      function setupEditor() {
+        // Try to find all Froala instances
+        const editorElements = document.querySelectorAll('.fr-element');
+        if (editorElements.length === 0) return;
         
-        // Define the font list - match format from TinyMCE example
-        const fontList = {
-          // Register both fonts with proper fallbacks
-          [bodyFont]: bodyFont + ',sans-serif',
-          [headersFont]: headersFont + ',serif'
-        };
-        
-        // Set the font_family options to include our custom fonts
-        FroalaEditor.DEFAULTS.fontFamily = fontList;
-        
-        // Set default font family
-        FroalaEditor.DEFAULTS.fontFamilyDefaultSelection = bodyFont;
-        
-        // Set font sizes
-        FroalaEditor.DEFAULTS.fontSize = [
-          '_*_Small text size (number)_*_',
-          '_*_Font size (number)_*_',
-          '_*_Large text size (number)_*_',
-          '_*_Huge text size (number)_*_'
-        ];
-        
-        // Set default font size
-        FroalaEditor.DEFAULTS.fontSizeDefaultSelection = '_*_Font size (number)_*_';
-        
-        // Refresh any existing instances
-        if (FroalaEditor.INSTANCES && FroalaEditor.INSTANCES.length > 0) {
-          for (let i = 0; i < FroalaEditor.INSTANCES.length; i++) {
-            const editor = FroalaEditor.INSTANCES[i];
-            
-            // Update font options in the toolbar
-            if (editor.opts && editor.opts.fontFamily) {
-              editor.opts.fontFamily = fontList;
-              editor.opts.fontFamilyDefaultSelection = bodyFont;
-            }
-            
-            // Force refresh of the UI
-            if (editor.refresh) {
-              editor.refresh();
+        // Patch the Froala editor if it exists
+        if (typeof FroalaEditor !== 'undefined') {
+          // Define our custom fonts
+          const bodyFont = '_*_Body font type_*_';
+          const headersFont = '_*_Headers font type_*_';
+          
+          // Create a font list with our custom fonts
+          const fontList = {};
+          fontList[bodyFont] = bodyFont + ', sans-serif';
+          fontList[headersFont] = headersFont + ', serif';
+          
+          // Try to modify the defaults
+          try {
+            FroalaEditor.DEFAULTS.fontFamily = fontList;
+            FroalaEditor.DEFAULTS.fontFamilySelection = true;
+            FroalaEditor.DEFAULTS.fontFamilyDefaultSelection = bodyFont;
+          } catch (e) {
+            console.log('Could not set Froala defaults', e);
+          }
+          
+          // Try to modify existing instances
+          if (FroalaEditor.INSTANCES) {
+            for (let i = 0; i < FroalaEditor.INSTANCES.length; i++) {
+              try {
+                const editor = FroalaEditor.INSTANCES[i];
+                if (editor && editor.opts) {
+                  editor.opts.fontFamily = fontList;
+                  editor.opts.fontFamilySelection = true;
+                  editor.opts.fontFamilyDefaultSelection = bodyFont;
+                  
+                  // Try to apply the font to the editor content
+                  if (editor.commands && editor.commands.fontFamily) {
+                    editor.commands.fontFamily(bodyFont);
+                  }
+                  
+                  // Refresh the editor to apply changes
+                  if (editor.refresh) {
+                    editor.refresh();
+                  }
+                }
+              } catch (e) {
+                console.log('Error updating Froala instance', e);
+              }
             }
           }
         }
+        
+        // Direct CSS approach - apply styles directly to elements
+        editorElements.forEach(el => {
+          el.style.fontFamily = '_*_Body font type_*_, sans-serif';
+          el.style.fontSize = '_*_Font size (number)_*_px';
+          el.style.fontWeight = '_*_Body font weight (number)_*_';
+          el.style.lineHeight = '_*_Line height (number)_*_';
+        });
+        
+        // Try to set the font dropdown text
+        const fontDropdowns = document.querySelectorAll('.fr-command[data-cmd="fontFamily"]');
+        fontDropdowns.forEach(dropdown => {
+          const span = dropdown.querySelector('span');
+          if (span) {
+            span.innerHTML = '_*_Body font type_*_';
+            span.style.fontFamily = '_*_Body font type_*_, sans-serif';
+          }
+        });
       }
+      
+      // Run setup immediately and then watch for changes
+      setupEditor();
+      
+      // Watch for new editors being added to the page
+      const observer = new MutationObserver(function(mutations) {
+        let shouldSetup = false;
+        
+        mutations.forEach(function(mutation) {
+          if (mutation.addedNodes.length) {
+            for (let i = 0; i < mutation.addedNodes.length; i++) {
+              const node = mutation.addedNodes[i];
+              if (node.nodeType === 1) {
+                if (node.classList && (
+                    node.classList.contains('fr-element') || 
+                    node.classList.contains('fr-box') ||
+                    node.querySelector('.fr-element, .fr-box')
+                )) {
+                  shouldSetup = true;
+                  break;
+                }
+              }
+            }
+          }
+        });
+        
+        if (shouldSetup) {
+          setTimeout(setupEditor, 100);
+        }
+      });
+      
+      // Start observing with a broader scope
+      observer.observe(document.body, { 
+        childList: true, 
+        subtree: true 
+      });
+      
+      // Also hook into focus events to apply font
+      document.addEventListener('focusin', function(e) {
+        if (e.target.classList && e.target.classList.contains('fr-element')) {
+          setTimeout(function() {
+            e.target.style.fontFamily = '_*_Body font type_*_, sans-serif';
+            
+            // Try to use Froala API if available
+            if (typeof FroalaEditor !== 'undefined' && FroalaEditor.INSTANCES) {
+              for (let i = 0; i < FroalaEditor.INSTANCES.length; i++) {
+                try {
+                  const editor = FroalaEditor.INSTANCES[i];
+                  if (editor && editor.el === e.target && editor.commands && editor.commands.fontFamily) {
+                    editor.commands.fontFamily('_*_Body font type_*_');
+                  }
+                } catch (e) { /* Ignore errors */ }
+              }
+            }
+          }, 100);
+        }
+      });
     }
     
-    // Try to register fonts when the page loads
-    setTimeout(registerFonts, 1000);
+    // Try multiple times with increasing delays to catch the editor initialization
+    setTimeout(initFroalaFonts, 100);
+    setTimeout(initFroalaFonts, 500);
+    setTimeout(initFroalaFonts, 1000);
+    setTimeout(initFroalaFonts, 2000);
     
-    // And periodically check in case the editor loads later
-    const intervalId = setInterval(function() {
-      if (typeof FroalaEditor !== 'undefined') {
-        registerFonts();
-        clearInterval(intervalId);
+    // Also add a CSS rule through JavaScript to ensure it takes effect
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+      .fr-element {
+        font-family: _*_Body font type_*_, sans-serif !important;
+        font-size: _*_Font size (number)_*_px !important;
+        font-weight: _*_Body font weight (number)_*_ !important;
+        line-height: _*_Line height (number)_*_ !important;
       }
-    }, 500);
-    
-    // Stop checking after 20 seconds
-    setTimeout(function() {
-      clearInterval(intervalId);
-    }, 20000);
-    
-    // Directly set the font in the editor content when focused
-    document.addEventListener('focusin', function(e) {
-      if (e.target && e.target.classList && e.target.classList.contains('fr-element')) {
-        const bodyFont = '_*_Body font type_*_';
-        
-        // Attempt to set font directly via Froala API
-        if (window.FroalaEditor && FroalaEditor.INSTANCES) {
-          for (let i = 0; i < FroalaEditor.INSTANCES.length; i++) {
-            const editor = FroalaEditor.INSTANCES[i];
-            if (editor.el === e.target) {
-              if (editor.commands && editor.commands.fontFamily) {
-                editor.commands.fontFamily(bodyFont);
-              }
-              break;
-            }
-          }
-        }
+      .fr-element h1, .fr-element h2, .fr-element h3, 
+      .fr-element h4, .fr-element h5, .fr-element h6 {
+        font-family: _*_Headers font type_*_, serif !important;
+        font-weight: _*_Headings font weight (number)_*_ !important;
       }
-    });
+    `;
+    document.head.appendChild(styleElement);
   });
 </script>

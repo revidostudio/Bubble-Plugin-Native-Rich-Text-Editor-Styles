@@ -9,5 +9,5 @@
     "license": "open_source",
     "link": "https://revido.co/contact",
     "name": "Native Rich Text Editor Styles",
-    "plugin_instructions": " Edit all styles within the plugin settings."
+    "plugin_instructions": "Edit all styles within the plugin settings.\n\nFor fonts, only use Google Font names (e.g., \"Inter\").\n\nFor variables that contain \"(number)\", only add the number - e.g., \"14\" instead of \"14px\".\n\nFor variables that contain \"(HEX)\", add the full HEX color code containing the pound sign - e.g., \"#FFFFFF\"."
 }
