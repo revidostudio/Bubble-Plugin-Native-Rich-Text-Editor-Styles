@@ -98,50 +98,158 @@
   #blogBodyRTE .fr-view .fr-huge {
     font-size: _*_Huge text size (number)_*_px !important;
   }
+  
+  /* Force the font dropdown to show our preferred font */
+  .fr-toolbar .fr-command.fr-btn.fr-dropdown[data-cmd="fontFamily"] span::after {
+    content: "_*_Body font type_*_" !important;
+  }
 </style>
 
 <!-- Add JavaScript to set default font in the dropdown -->
 <script>
   // This script handles setting the selected font in the dropdown
   document.addEventListener('DOMContentLoaded', function() {
-    // Function to set the default font in the dropdown
+    // Multiple approaches to set the default font
     function setDefaultFont() {
-      // For Froala Editor
-      const froalaFontSelectors = document.querySelectorAll('.fr-toolbar .fr-dropdown-list[data-name="fontFamily"] .fr-command');
-      if (froalaFontSelectors.length > 0) {
-        // Find the one matching our body font and click it
+      try {
         const bodyFont = '_*_Body font type_*_'.replace(/"/g, ''); // Remove quotes if present
-        for (let i = 0; i < froalaFontSelectors.length; i++) {
-          if (froalaFontSelectors[i].textContent.trim() === bodyFont) {
-            froalaFontSelectors[i].click();
-            break;
+        
+        // Approach 1: Try to find and click the right font in the dropdown
+        const fontDropdowns = document.querySelectorAll('.fr-toolbar .fr-dropdown[data-cmd="fontFamily"]');
+        if (fontDropdowns.length > 0) {
+          // Try to trigger the dropdown to open
+          for (let dropdown of fontDropdowns) {
+            dropdown.click();
+            
+            // Wait a bit for the dropdown to open
+            setTimeout(function() {
+              const fontOptions = document.querySelectorAll('.fr-dropdown-list[data-cmd="fontFamily"] .fr-command');
+              for (let option of fontOptions) {
+                if (option.textContent.trim() === bodyFont || 
+                    option.getAttribute('data-param1') === bodyFont) {
+                  option.click();
+                  break;
+                }
+              }
+            }, 100);
           }
         }
+        
+        // Approach 2: Try to directly execute the fontFamily command
+        const editors = document.querySelectorAll('.fr-element');
+        if (editors.length > 0 && window.FroalaEditor) {
+          for (let editor of editors) {
+            const editorInstance = window.FroalaEditor.INSTANCES.find(i => i.el === editor);
+            if (editorInstance) {
+              editorInstance.commands.fontFamily(bodyFont);
+            }
+          }
+        }
+        
+        // Approach 3: Create a custom style element with additional font rules
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+          .fr-toolbar .fr-dropdown[data-cmd="fontFamily"] span.fr-sr-only { 
+            display: none !important; 
+          }
+          .fr-toolbar .fr-dropdown[data-cmd="fontFamily"] span:after { 
+            content: "${bodyFont}" !important; 
+          }
+          .fr-dropdown-list[data-cmd="fontFamily"] .fr-command[data-param1="${bodyFont}"] {
+            background-color: #f0f0f0 !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+        
+      } catch (e) {
+        console.error("Error setting default font:", e);
       }
     }
     
-    // Run initially
-    setTimeout(setDefaultFont, 1000); // Give the editor time to initialize
+    // Set the default font sizes for the size dropdown
+    function setDefaultSizes() {
+      try {
+        // Target the size dropdown buttons
+        const sizeDropdowns = document.querySelectorAll('.fr-toolbar .fr-dropdown[data-cmd="fontSize"]');
+        
+        // Create a style element for overriding the size display text
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+          .fr-dropdown-list[data-cmd="fontSize"] .fr-command[data-param1="1"] {
+            font-size: _*_Small text size (number)_*_px !important;
+          }
+          .fr-dropdown-list[data-cmd="fontSize"] .fr-command[data-param1="2"] {
+            font-size: _*_Font size (number)_*_px !important;
+          }
+          .fr-dropdown-list[data-cmd="fontSize"] .fr-command[data-param1="3"] {
+            font-size: _*_Large text size (number)_*_px !important;
+          }
+          .fr-dropdown-list[data-cmd="fontSize"] .fr-command[data-param1="4"] {
+            font-size: _*_Huge text size (number)_*_px !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+        
+      } catch (e) {
+        console.error("Error setting font sizes:", e);
+      }
+    }
     
-    // Also run when new editors might be loaded
+    // Run with a delay to ensure the editor is fully loaded
+    setTimeout(function() {
+      setDefaultFont();
+      setDefaultSizes();
+    }, 2000);
+    
+    // Also run when the page content changes
     const observer = new MutationObserver(function(mutations) {
+      let shouldRun = false;
+      
       mutations.forEach(function(mutation) {
         if (mutation.addedNodes.length) {
-          // Check if any of the added nodes are rich text editors
           for (let i = 0; i < mutation.addedNodes.length; i++) {
             const node = mutation.addedNodes[i];
             if (node.nodeType === 1 && 
-                (node.classList.contains('fr-element') || 
-                 node.querySelector('.fr-element'))) {
-              setTimeout(setDefaultFont, 500); // Give the editor time to initialize
+                (node.classList && (
+                  node.classList.contains('fr-element') || 
+                  node.classList.contains('fr-toolbar') ||
+                  node.querySelector('.fr-element, .fr-toolbar')
+                ))
+               ) {
+              shouldRun = true;
               break;
             }
           }
         }
       });
+      
+      if (shouldRun) {
+        setTimeout(function() {
+          setDefaultFont();
+          setDefaultSizes();
+        }, 1000);
+      }
     });
     
-    // Start observing the document for added nodes
-    observer.observe(document.body, { childList: true, subtree: true });
+    // Start observing with a more comprehensive approach
+    observer.observe(document.body, { 
+      childList: true, 
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    
+    // Also try periodically in case the editor loads later
+    const intervalId = setInterval(function() {
+      if (document.querySelector('.fr-element, .fr-toolbar')) {
+        setDefaultFont();
+        setDefaultSizes();
+      }
+    }, 3000);
+    
+    // Stop checking after 30 seconds to avoid performance issues
+    setTimeout(function() {
+      clearInterval(intervalId);
+    }, 30000);
   });
 </script>
