@@ -1,23 +1,50 @@
 <style>
-  /* ——— FROALA‑based "Rich Text Input" ——— */
+  /* ——— QUILL‑based "Rich Text Input" ——— */
   
-  /* Toolbar customization */
-  .bubble-element .fr-toolbar,
-  .bubble-element .fr-toolbar.fr-top,
-  .bubble-element .fr-box.fr-basic .fr-toolbar {
+  /* Remove ALL margins and padding from the rich text container */
+  .bubble-element[bubble-element="RichText"],
+  div[bubble-element="RichText"],
+  div[class*="1580238841425x582072028873097200-AAC"] {
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+  }
+  
+  /* Toolbar customization - remove spacing completely */
+  .bubble-element .ql-toolbar.ql-snow {
     background-color: _*_Toolbar background color (HEX)_*_ !important;
-    border-top-color: _*_Toolbar background color (HEX)_*_ !important;
+    border-color: _*_Toolbar background color (HEX)_*_ !important;
+    margin: 0 !important;
+    padding: 4px !important;
+    box-sizing: border-box !important;
+    border-radius: 8px 8px 0 0 !important;
+    border-bottom: 1px solid rgba(0,0,0,0.1) !important;
+  }
+  
+  /* Remove space between toolbar and editor */
+  .bubble-element .ql-container.ql-snow {
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 0 8px 8px !important;
+  }
+  
+  /* Ensure no gaps between elements */
+  .bubble-element .ql-toolbar.ql-snow + .ql-container.ql-snow {
+    margin-top: 0 !important;
+    border-top: none !important;
   }
   
   /* Placeholder text customization */
-  .bubble-element .fr-placeholder {
+  .bubble-element .ql-editor.ql-blank::before {
     color: _*_Placeholder text color (HEX)_*_ !important;
     opacity: 1 !important;
     font-style: normal !important; /* turn off italics */
   }
   
   /* Main editor content customization */
-  .bubble-element .fr-element {
+  .bubble-element .ql-editor {
     color: _*_Font color (HEX)_*_ !important;
     font-size: _*_Font size (number)_*_px !important;
     font-family: _*_Body font type_*_, sans-serif !important;
@@ -27,232 +54,558 @@
     padding-right: _*_Horizontal padding (number)_*_px !important;
     padding-top: _*_Vertical padding (number)_*_px !important;
     padding-bottom: _*_Vertical padding (number)_*_px !important;
+    margin: 0 !important;
   }
   
   /* Headers customization */
-  .bubble-element .fr-element h1,
-  .bubble-element .fr-element h2,
-  .bubble-element .fr-element h3,
-  .bubble-element .fr-element h4,
-  .bubble-element .fr-element h5,
-  .bubble-element .fr-element h6 {
+  .bubble-element .ql-editor h1,
+  .bubble-element .ql-editor h2,
+  .bubble-element .ql-editor h3,
+  .bubble-element .ql-editor h4,
+  .bubble-element .ql-editor h5,
+  .bubble-element .ql-editor h6 {
     font-family: _*_Headers font type_*_, serif !important;
     font-weight: _*_Headings font weight (number)_*_ !important;
   }
   
   /* Link customization */
-  .bubble-element .fr-element a {
+  .bubble-element .ql-editor a {
     color: _*_Link color (HEX)_*_ !important;
   }
   
   /* Font size options customization */
   /* Small size */
-  .bubble-element .fr-element .fr-small,
-  .bubble-element .fr-view .fr-small {
+  .bubble-element .ql-editor .ql-size-small {
     font-size: _*_Small text size (number)_*_px !important;
   }
   
   /* Normal size is already defined by the main font size above */
   
   /* Large size */
-  .bubble-element .fr-element .fr-large,
-  .bubble-element .fr-view .fr-large {
+  .bubble-element .ql-editor .ql-size-large {
     font-size: _*_Large text size (number)_*_px !important;
   }
   
   /* Huge size */
-  .bubble-element .fr-element .fr-huge,
-  .bubble-element .fr-view .fr-huge {
+  .bubble-element .ql-editor .ql-size-huge {
     font-size: _*_Huge text size (number)_*_px !important;
+  }
+  
+  /* Force font picker to show our custom fonts */
+  .ql-picker.ql-font .ql-picker-item[data-value="_*_Body font type_*_"]::before {
+    content: '_*_Body font type_*_' !important;
+    font-family: '_*_Body font type_*_', sans-serif !important;
+  }
+  
+  .ql-picker.ql-font .ql-picker-item[data-value="_*_Headers font type_*_"]::before {
+    content: '_*_Headers font type_*_' !important;
+    font-family: '_*_Headers font type_*_', serif !important;
+  }
+  
+  /* Style the font label in toolbar */
+  .ql-font .ql-picker-label::before {
+    content: '_*_Body font type_*_' !important;
+    font-family: '_*_Body font type_*_', sans-serif !important;
+  }
+  
+  /* Style for custom fonts in the dropdown */
+  .ql-snow .ql-picker.ql-font .ql-picker-label::before,
+  .ql-snow .ql-picker.ql-font .ql-picker-item::before {
+    content: '_*_Body font type_*_';
+    font-family: '_*_Body font type_*_', sans-serif;
+  }
+  
+  .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="_*_Body font type_*_"]::before,
+  .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="_*_Body font type_*_"]::before {
+    content: "_*_Body font type_*_";
+    font-family: "_*_Body font type_*_", sans-serif;
+  }
+  
+  .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="_*_Headers font type_*_"]::before,
+  .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="_*_Headers font type_*_"]::before {
+    content: "_*_Headers font type_*_";
+    font-family: "_*_Headers font type_*_", serif;
+  }
+  
+  /* Custom styling for the entire rich text editor layout */
+  div[class*="1580238841425x582072028873097200-AAC"],
+  div[bubble-element="RichText"] {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  /* Fix any specific display issues and remove all extra spacing */
+  .bubble-element .ql-toolbar.ql-snow,
+  .bubble-element .ql-container.ql-snow,
+  .bubble-element .ql-editor {
+    display: block !important;
+    flex: none !important;
+    margin: 0 !important;
+    border-width: 0 !important;
+  }
+  
+  /* Add a subtle border only where needed */
+  .bubble-element .ql-toolbar.ql-snow {
+    border-bottom: 1px solid rgba(0,0,0,0.1) !important;
   }
 </style>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Function to inject and modify Froala's font options
-    function modifyFroalaFonts() {
-      if (typeof FroalaEditor === 'undefined') return;
+    // Function to add custom fonts to Quill
+    function addCustomFontsToQuill() {
+      // Only proceed if Quill is loaded
+      if (typeof Quill === 'undefined') return;
       
-      // 1. Define our custom fonts
+      // Define our font whitelist
       const bodyFont = '_*_Body font type_*_';
       const headersFont = '_*_Headers font type_*_';
       
-      // 2. Completely replace Froala's built-in font list with our custom fonts
-      try {
-        // Create a new font list to replace the default one
-        const newFontList = {
-          "Arial": "Arial, Helvetica, sans-serif",
-          "Georgia": "Georgia, serif",
-          "Times New Roman": "'Times New Roman', Times, serif",
-          [bodyFont]: bodyFont + ", sans-serif",
-          [headersFont]: headersFont + ", serif"
-        };
-        
-        // Override Froala's default font list
-        FroalaEditor.DEFAULTS.fontFamily = newFontList;
-        
-        // Set our default font as the selected one
-        FroalaEditor.DEFAULTS.fontFamilyDefaultSelection = bodyFont;
-        
-        // Define font sizes
-        FroalaEditor.DEFAULTS.fontSize = [
-          '_*_Small text size (number)_*_',
-          '_*_Font size (number)_*_',
-          '_*_Large text size (number)_*_',
-          '_*_Huge text size (number)_*_'
-        ];
-        
-        // Set default font size
-        FroalaEditor.DEFAULTS.fontSizeDefaultSelection = '_*_Font size (number)_*_';
-      } catch (e) {
-        console.error('Error setting Froala defaults:', e);
-      }
+      // Add fonts to Quill's whitelist
+      const FontAttributor = Quill.import('attributors/class/font');
       
-      // 3. Update any existing editor instances
-      if (FroalaEditor.INSTANCES && FroalaEditor.INSTANCES.length > 0) {
-        for (let i = 0; i < FroalaEditor.INSTANCES.length; i++) {
-          try {
-            const editor = FroalaEditor.INSTANCES[i];
-            if (editor && editor.opts) {
-              // Update the font family options in this instance
-              const newFontList = {
-                "Arial": "Arial, Helvetica, sans-serif",
-                "Georgia": "Georgia, serif",
-                "Times New Roman": "'Times New Roman', Times, serif",
-                [bodyFont]: bodyFont + ", sans-serif",
-                [headersFont]: headersFont + ", serif"
-              };
+      // Define our font options
+      const fontNames = ['Arial', 'Courier', 'Garamond', 'Tahoma', 'Times New Roman', 'Verdana', bodyFont, headersFont];
+      FontAttributor.whitelist = fontNames;
+      Quill.register(FontAttributor, true);
+      
+      // Create a style element to add the font classes
+      const styleElement = document.createElement('style');
+      styleElement.type = 'text/css';
+      
+      // Add CSS for each font
+      let fontCSS = '';
+      fontNames.forEach(font => {
+        // Format the font value for CSS (lowercase, spaces to dashes)
+        const fontValue = font.toLowerCase().replace(/\s+/g, '-');
+        
+        // Add class for this font
+        if (font === bodyFont) {
+          fontCSS += `.ql-font-${fontValue} { font-family: "${font}", sans-serif; }\n`;
+        } else if (font === headersFont) {
+          fontCSS += `.ql-font-${fontValue} { font-family: "${font}", serif; }\n`;
+        } else {
+          fontCSS += `.ql-font-${fontValue} { font-family: "${font}"; }\n`;
+        }
+      });
+      
+      styleElement.textContent = fontCSS;
+      document.head.appendChild(styleElement);
+      
+      // Update any existing Quill instances
+      updateExistingQuillInstances(fontNames);
+    }
+    
+    // Function to update any existing Quill instances with our custom fonts
+    function updateExistingQuillInstances(fontNames) {
+      // Find all Quill editors
+      const editors = document.querySelectorAll('.ql-container');
+      
+      editors.forEach(editor => {
+        // For each editor, find the toolbar and font picker
+        const toolbar = editor.previousElementSibling;
+        if (!toolbar || !toolbar.classList.contains('ql-toolbar')) return;
+        
+        const fontPicker = toolbar.querySelector('.ql-font');
+        if (!fontPicker) return;
+        
+        // Get the picker dropdown
+        const dropdown = fontPicker.querySelector('.ql-picker-options');
+        if (!dropdown) return;
+        
+        // Clear existing options
+        dropdown.innerHTML = '';
+        
+        // Add our font options
+        fontNames.forEach(font => {
+          // Create a new option
+          const option = document.createElement('span');
+          option.classList.add('ql-picker-item');
+          
+          // Format the font value (lowercase, spaces to dashes)
+          const fontValue = font.toLowerCase().replace(/\s+/g, '-');
+          option.setAttribute('data-value', fontValue);
+          
+          // Set the font style
+          if (font === '_*_Body font type_*_') {
+            option.style.fontFamily = `"${font}", sans-serif`;
+          } else if (font === '_*_Headers font type_*_') {
+            option.style.fontFamily = `"${font}", serif`;
+          } else {
+            option.style.fontFamily = font;
+          }
+          
+          // Add the option to the dropdown
+          dropdown.appendChild(option);
+        });
+      });
+    }
+    
+    // Function to handle Bubble's data resets
+    function handleBubbleDataResets() {
+      // Create a map to store previous content for each editor
+      const editorContents = new Map();
+      
+      // Monitor for changes to editor content
+      setInterval(function() {
+        const editors = document.querySelectorAll('.ql-editor');
+        
+        editors.forEach(editor => {
+          const editorId = editor.closest('.bubble-element').id || Math.random().toString();
+          const currentContent = editor.innerHTML;
+          
+          // If we have a record of this editor
+          if (editorContents.has(editorId)) {
+            const previousContent = editorContents.get(editorId);
+            
+            // If the content has changed to empty or significantly reduced,
+            // it might be due to a data reset
+            if (previousContent && previousContent.length > 50 && currentContent.length === 0) {
+              console.log('Detected possible Bubble data reset for editor', editorId);
               
-              editor.opts.fontFamily = newFontList;
-              editor.opts.fontFamilyDefaultSelection = bodyFont;
-              
-              // Set the font sizes
-              editor.opts.fontSize = [
-                '_*_Small text size (number)_*_',
-                '_*_Font size (number)_*_',
-                '_*_Large text size (number)_*_',
-                '_*_Huge text size (number)_*_'
-              ];
-              editor.opts.fontSizeDefaultSelection = '_*_Font size (number)_*_';
-              
-              // Apply the default font to the content
-              if (editor.commands && editor.commands.fontFamily) {
-                editor.commands.fontFamily(bodyFont);
-              }
-              
-              // Refresh the editor UI
-              if (editor.refresh) {
-                editor.refresh();
+              // Try to find Quill instance for this editor
+              if (typeof Quill !== 'undefined') {
+                const quillContainer = editor.closest('.ql-container');
+                if (quillContainer && quillContainer.quill) {
+                  // Clear and reset the editor content
+                  quillContainer.quill.setContents([]);
+                }
               }
             }
-          } catch (e) {
-            console.error('Error updating Froala instance:', e);
           }
-        }
-      }
-      
-      // 4. Override the dropdown HTML directly as a fallback
-      setTimeout(function() {
-        const fontDropdowns = document.querySelectorAll('.fr-dropdown-list[data-name="fontFamily"]');
-        fontDropdowns.forEach(dropdown => {
-          // Clear existing fonts
-          dropdown.innerHTML = '';
           
-          // Add our custom fonts
-          const fontOptions = [
-            { name: 'Arial', value: 'Arial, Helvetica, sans-serif' },
-            { name: 'Georgia', value: 'Georgia, serif' },
-            { name: 'Times New Roman', value: "'Times New Roman', Times, serif" },
-            { name: bodyFont, value: bodyFont + ', sans-serif' },
-            { name: headersFont, value: headersFont + ', serif' }
-          ];
-          
-          fontOptions.forEach(font => {
-            const li = document.createElement('li');
-            const a = document.createElement('a');
-            a.className = 'fr-command';
-            a.setAttribute('data-cmd', 'fontFamily');
-            a.setAttribute('data-param1', font.name);
-            a.style.fontFamily = font.value;
-            a.textContent = font.name;
-            li.appendChild(a);
-            dropdown.appendChild(li);
-          });
+          // Store current content for future comparison
+          editorContents.set(editorId, currentContent);
         });
       }, 500);
-    }
-    
-    // 5. Force our styles on the editor content
-    function applyStylesToEditor() {
-      const editors = document.querySelectorAll('.fr-element');
-      editors.forEach(editor => {
-        editor.style.fontFamily = '_*_Body font type_*_, sans-serif';
-        editor.style.fontSize = '_*_Font size (number)_*_px';
-        editor.style.color = '_*_Font color (HEX)_*_';
-        editor.style.fontWeight = '_*_Body font weight (number)_*_';
-        editor.style.lineHeight = '_*_Line height (number)_*_';
-      });
-    }
-    
-    // Run our functions with multiple timings to ensure they catch the editor
-    setTimeout(modifyFroalaFonts, 500);
-    setTimeout(modifyFroalaFonts, 1000);
-    setTimeout(modifyFroalaFonts, 2000);
-    
-    setTimeout(applyStylesToEditor, 1000);
-    setTimeout(applyStylesToEditor, 2000);
-    
-    // Watch for new editors being added
-    const observer = new MutationObserver(function(mutations) {
-      let shouldModify = false;
       
-      mutations.forEach(function(mutation) {
-        if (mutation.addedNodes.length) {
-          for (let i = 0; i < mutation.addedNodes.length; i++) {
-            const node = mutation.addedNodes[i];
-            if (node.nodeType === 1) {
-              if (node.classList && (
-                  node.classList.contains('fr-element') || 
-                  node.classList.contains('fr-box') ||
-                  node.querySelector('.fr-element, .fr-box')
-              )) {
-                shouldModify = true;
-                break;
+      // Watch for Bubble data changes (can be detected by specific events or DOM changes)
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+            // Check if the mutation target is a Bubble element that might be resetting
+            const bubbleElement = mutation.target.closest('.bubble-element');
+            if (bubbleElement) {
+              const richTextElement = bubbleElement.querySelector('.ql-editor');
+              if (richTextElement) {
+                // This might be a Bubble data reset, check if we need to clear content
+                const editorId = bubbleElement.id || Math.random().toString();
+                
+                // Mark this editor as potentially reset
+                setTimeout(() => {
+                  // Check if the editor is empty or has placeholder content
+                  if (richTextElement.childNodes.length <= 1 && richTextElement.textContent.trim() === '') {
+                    // Store empty content to avoid false detection
+                    editorContents.set(editorId, '');
+                  }
+                }, 50);
               }
             }
           }
+        });
+      });
+      
+      // Observe the document for class changes that might indicate Bubble data updates
+      observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class'],
+        subtree: true
+      });
+    }
+    
+    // Function to forcibly inject our custom fonts into Quill's dropdowns
+    function injectCustomFontsToQuillDropdowns() {
+      // Find all font pickers
+      const fontPickers = document.querySelectorAll('.ql-font');
+      
+      fontPickers.forEach(picker => {
+        // Get the picker dropdown
+        const dropdown = picker.querySelector('.ql-picker-options');
+        if (!dropdown) return;
+        
+        // Define our custom fonts
+        const bodyFont = '_*_Body font type_*_';
+        const headersFont = '_*_Headers font type_*_';
+        
+        // Check if our custom fonts are already in the dropdown
+        const bodyFontItem = dropdown.querySelector(`[data-value="${bodyFont.toLowerCase().replace(/\s+/g, '-')}"]`);
+        const headersFontItem = dropdown.querySelector(`[data-value="${headersFont.toLowerCase().replace(/\s+/g, '-')}"]`);
+        
+        // If either of our fonts is missing, add both (to ensure consistency)
+        if (!bodyFontItem || !headersFontItem) {
+          // Create body font option
+          const bodyFontOption = document.createElement('span');
+          bodyFontOption.classList.add('ql-picker-item');
+          bodyFontOption.setAttribute('data-value', bodyFont.toLowerCase().replace(/\s+/g, '-'));
+          bodyFontOption.style.fontFamily = `"${bodyFont}", sans-serif`;
+          bodyFontOption.setAttribute('role', 'option');
+          bodyFontOption.setAttribute('tabindex', '0');
+          
+          // Create header font option
+          const headersFontOption = document.createElement('span');
+          headersFontOption.classList.add('ql-picker-item');
+          headersFontOption.setAttribute('data-value', headersFont.toLowerCase().replace(/\s+/g, '-'));
+          headersFontOption.style.fontFamily = `"${headersFont}", serif`;
+          headersFontOption.setAttribute('role', 'option');
+          headersFontOption.setAttribute('tabindex', '0');
+          
+          // Add the options to the dropdown
+          dropdown.appendChild(bodyFontOption);
+          dropdown.appendChild(headersFontOption);
         }
       });
+    }
+    
+    // Function to completely override Quill's font handling
+    function overrideQuillFontModule() {
+      if (typeof Quill === 'undefined') return;
       
-      if (shouldModify) {
-        setTimeout(modifyFroalaFonts, 200);
-        setTimeout(applyStylesToEditor, 300);
-      }
-    });
-    
-    // Start observing the document
-    observer.observe(document.body, { 
-      childList: true, 
-      subtree: true 
-    });
-    
-    // Apply font when editor is focused
-    document.addEventListener('focusin', function(e) {
-      if (e.target.classList && e.target.classList.contains('fr-element')) {
-        setTimeout(function() {
-          e.target.style.fontFamily = '_*_Body font type_*_, sans-serif';
+      const bodyFont = '_*_Body font type_*_';
+      const headersFont = '_*_Headers font type_*_';
+      
+      // Store the original font module
+      const originalFontModule = Quill.import('formats/font');
+      
+      // Create a new font module with our custom fonts
+      class CustomFontModule extends originalFontModule {
+        static create(value) {
+          const elem = super.create(value);
           
-          // Try to use Froala API
-          if (typeof FroalaEditor !== 'undefined' && FroalaEditor.INSTANCES) {
-            for (let i = 0; i < FroalaEditor.INSTANCES.length; i++) {
-              const editor = FroalaEditor.INSTANCES[i];
-              if (editor && editor.el === e.target && editor.commands && editor.commands.fontFamily) {
-                editor.commands.fontFamily('_*_Body font type_*_');
+          // Apply the correct font family based on value
+          if (value === bodyFont.toLowerCase().replace(/\s+/g, '-')) {
+            elem.style.fontFamily = `"${bodyFont}", sans-serif`;
+          } else if (value === headersFont.toLowerCase().replace(/\s+/g, '-')) {
+            elem.style.fontFamily = `"${headersFont}", serif`;
+          }
+          
+          return elem;
+        }
+      }
+      
+      // Add our custom fonts to the whitelist
+      CustomFontModule.whitelist = [
+        'arial',
+        'courier',
+        'garamond',
+        'tahoma',
+        'times-new-roman',
+        'verdana',
+        bodyFont.toLowerCase().replace(/\s+/g, '-'),
+        headersFont.toLowerCase().replace(/\s+/g, '-')
+      ];
+      
+      // Register our custom module
+      Quill.register(CustomFontModule, true);
+    }
+    
+    // Function to monitor for new Quill editors
+    function monitorForNewQuillEditors() {
+      // Use a mutation observer to detect when new editors are added to the page
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+            for (let i = 0; i < mutation.addedNodes.length; i++) {
+              const node = mutation.addedNodes[i];
+              
+              if (node.nodeType === 1) {
+                // If a Quill editor or toolbar was added
+                if (node.classList && (
+                  node.classList.contains('ql-container') ||
+                  node.classList.contains('ql-toolbar') ||
+                  node.querySelector('.ql-container, .ql-toolbar')
+                )) {
+                  // Inject our custom fonts into dropdowns
+                  setTimeout(injectCustomFontsToQuillDropdowns, 100);
+                  setTimeout(injectCustomFontsToQuillDropdowns, 500);
+                }
               }
             }
           }
+        });
+      });
+      
+      // Start observing the entire document
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    }
+    
+    // Function to create a patch for Quill initialization
+    function patchQuillInit() {
+      if (typeof Quill === 'undefined') return;
+      
+      // Store the original Quill constructor
+      const originalQuill = Quill;
+      
+      // Create a patched constructor
+      window.Quill = function(container, options) {
+        // Add our custom fonts to the options
+        if (!options) options = {};
+        if (!options.modules) options.modules = {};
+        if (!options.modules.toolbar) options.modules.toolbar = {};
+        
+        // Add custom fonts to the toolbar options
+        const bodyFont = '_*_Body font type_*_';
+        const headersFont = '_*_Headers font type_*_';
+        
+        // Ensure fonts are registered
+        const FontAttributor = originalQuill.import('attributors/class/font');
+        FontAttributor.whitelist = ['arial', 'courier', 'garamond', 'tahoma', 'times-new-roman', 'verdana', 
+          bodyFont.toLowerCase().replace(/\s+/g, '-'), 
+          headersFont.toLowerCase().replace(/\s+/g, '-')
+        ];
+        originalQuill.register(FontAttributor, true);
+        
+        // Create the editor instance
+        const quill = new originalQuill(container, options);
+        
+        // After initialization, force our fonts into any dropdowns
+        setTimeout(() => {
+          injectCustomFontsToQuillDropdowns();
         }, 100);
+        
+        return quill;
+      };
+      
+      // Copy all properties from the original Quill
+      for (let prop in originalQuill) {
+        if (originalQuill.hasOwnProperty(prop)) {
+          window.Quill[prop] = originalQuill[prop];
+        }
       }
-    });
+      
+      // Restore the prototype chain
+      window.Quill.prototype = originalQuill.prototype;
+    }
+    
+    // Create a custom stylesheet with font rules
+    function createCustomFontRules() {
+      const style = document.createElement('style');
+      const bodyFont = '_*_Body font type_*_';
+      const headersFont = '_*_Headers font type_*_';
+      
+      style.textContent = `
+        /* Add font rules for the editor */
+        .ql-font-${bodyFont.toLowerCase().replace(/\s+/g, '-')} {
+          font-family: "${bodyFont}", sans-serif !important;
+        }
+        
+        .ql-font-${headersFont.toLowerCase().replace(/\s+/g, '-')} {
+          font-family: "${headersFont}", serif !important;
+        }
+        
+        /* Format the font picker items */
+        .ql-snow .ql-picker.ql-font .ql-picker-label::before,
+        .ql-snow .ql-picker.ql-font .ql-picker-item::before {
+          content: "Sans Serif";
+          font-family: "Sans Serif";
+        }
+        
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="${bodyFont.toLowerCase().replace(/\s+/g, '-')}"]::before,
+        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="${bodyFont.toLowerCase().replace(/\s+/g, '-')}"]::before {
+          content: "${bodyFont}";
+          font-family: "${bodyFont}", sans-serif;
+        }
+        
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="${headersFont.toLowerCase().replace(/\s+/g, '-')}"]::before,
+        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="${headersFont.toLowerCase().replace(/\s+/g, '-')}"]::before {
+          content: "${headersFont}";
+          font-family: "${headersFont}", serif;
+        }
+      `;
+      
+      document.head.appendChild(style);
+    }
+    
+    // Function to remove margins in the rich text editor
+    function fixRichTextEditorMargins() {
+      // Add a specific style element for margin fixes
+      const styleElement = document.createElement('style');
+      styleElement.innerHTML = `
+        /* Fix the container margins and padding */
+        .bubble-element[bubble-element="RichText"],
+        div[bubble-element="RichText"],
+        div[class*="1580238841425x582072028873097200-AAC"] {
+          padding: 0 !important;
+          margin: 0 !important;
+          display: flex !important;
+          flex-direction: column !important;
+        }
+        
+        /* Remove space between the toolbar and editor */
+        .ql-toolbar.ql-snow,
+        .ql-container.ql-snow {
+          margin: 0 !important;
+          border: none !important;
+        }
+        
+        /* Only keep essential borders */
+        .ql-toolbar.ql-snow {
+          border-bottom: 1px solid rgba(0,0,0,0.1) !important;
+        }
+        
+        /* Fix any flex issues */
+        .ql-container.ql-snow {
+          flex: 1 !important;
+          min-height: 0 !important;
+        }
+      `;
+      document.head.appendChild(styleElement);
+      
+      // Also add a function to actively fix margins after DOM updates
+      setInterval(function() {
+        const containers = document.querySelectorAll('.bubble-element[bubble-element="RichText"], div[bubble-element="RichText"], div[class*="1580238841425x582072028873097200-AAC"]');
+        
+        containers.forEach(container => {
+          // Reset padding and margins
+          container.style.padding = '0';
+          container.style.margin = '0';
+          
+          // Fix flex display
+          container.style.display = 'flex';
+          container.style.flexDirection = 'column';
+          
+          // Fix the toolbar and container
+          const toolbar = container.querySelector('.ql-toolbar.ql-snow');
+          const editorContainer = container.querySelector('.ql-container.ql-snow');
+          
+          if (toolbar) {
+            toolbar.style.margin = '0';
+            toolbar.style.borderWidth = '0';
+            toolbar.style.borderBottomWidth = '1px';
+            toolbar.style.borderBottomStyle = 'solid';
+            toolbar.style.borderBottomColor = 'rgba(0,0,0,0.1)';
+          }
+          
+          if (editorContainer) {
+            editorContainer.style.margin = '0';
+            editorContainer.style.border = 'none';
+            editorContainer.style.flex = '1';
+          }
+        });
+      }, 1000);
+    }
+    
+    // Execute all our functions
+    createCustomFontRules();
+    fixRichTextEditorMargins();
+    
+    // Wait for Quill to load before doing the rest
+    const quillLoadInterval = setInterval(function() {
+      if (typeof Quill !== 'undefined') {
+        clearInterval(quillLoadInterval);
+        
+        // Apply all our customizations
+        addCustomFontsToQuill();
+        overrideQuillFontModule();
+        patchQuillInit();
+        monitorForNewQuillEditors();
+        injectCustomFontsToQuillDropdowns();
+        handleBubbleDataResets();
+      }
+    }, 100);
   });
 </script>
